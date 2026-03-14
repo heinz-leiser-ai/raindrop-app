@@ -1,5 +1,5 @@
 import normalizeURL from './url'
-import { RENDER_URL, WORKERS_BASE_URL, LEGACY_WORKERS_BASE_URL } from '../../constants/app'
+import { THUMBNAIL_PROXY_URL, WORKERS_BASE_URL, LEGACY_WORKERS_BASE_URL } from '../../constants/app'
 
 export default function(url='') {
     let finalURL = normalizeURL(url)
@@ -10,5 +10,5 @@ export default function(url='') {
         finalURL.includes(LEGACY_WORKERS_BASE_URL))
         return finalURL.replace(/width=\d+/, 'a')
 
-    return RENDER_URL+'/'+encodeURIComponent(finalURL)
+    return THUMBNAIL_PROXY_URL+'/'+encodeURIComponent(finalURL)
 }

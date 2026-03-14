@@ -8,6 +8,7 @@ export const
 
 export const
 	API_ENDPOINT_URL 	= 'https://heutudmyharxiwnofost.supabase.co/functions/v1/api/',
+	THUMBNAIL_PROXY_URL	= `${API_ENDPOINT_URL}thumbnail/render`,
 	API_RETRIES 		= 3,
 	API_TIMEOUT 		= 30000,
 	FAVICON_URL 		= `${WORKERS_BASE_URL}/favicon`,
