@@ -51,7 +51,7 @@ class SubscribeViewController: NSViewController, WKNavigationDelegate {
         
         //login with JWT token
         let jwt = Just.post(
-            "https://api.raindrop.io/v1/auth/jwt",
+            "https://heutudmyharxiwnofost.supabase.co/functions/v1/api/auth/jwt",
             json: [
                 "token": token
             ]
@@ -60,7 +60,7 @@ class SubscribeViewController: NSViewController, WKNavigationDelegate {
         //success JWT login
         if jwt.ok, let jwtData = jwt.json as? [String: Any], jwtData["result"] as! Bool == true {
             //load user data
-            let r = Just.get("https://api.raindrop.io/v1/user")
+            let r = Just.get("https://heutudmyharxiwnofost.supabase.co/functions/v1/api/user")
             if r.ok, let jsonData = r.json as? [String: Any] {
                 if jsonData["user"] != nil {
                     let user = jsonData["user"] as! [String: Any]
@@ -162,7 +162,7 @@ class SubscribeViewController: NSViewController, WKNavigationDelegate {
                 print(encryptedReceipt)
                 
                 let r = Just.post(
-                    "https://api.raindrop.io/v1/user/subscription/apple_restore",
+                    "https://heutudmyharxiwnofost.supabase.co/functions/v1/api/user/subscription/apple_restore",
                     json: [
                         "receipt": encryptedReceipt
                     ]

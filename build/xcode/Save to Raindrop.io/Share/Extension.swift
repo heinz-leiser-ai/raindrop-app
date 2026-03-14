@@ -25,7 +25,7 @@ class Extension: NSViewController {
         
         //configure auth
         auth.callbackURLScheme = "rniomacsafari"
-        auth.url = URL(string: "https://api.raindrop.io/v1/auth/jwt?done_uri=rniomacsafari://done")!
+        auth.url = URL(string: "https://heutudmyharxiwnofost.supabase.co/functions/v1/api/auth/jwt?done_uri=rniomacsafari://done")!
         auth.onDone = onAuthDone
         
         //configure webView

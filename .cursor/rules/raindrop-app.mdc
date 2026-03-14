@@ -1,0 +1,34 @@
+---
+description: Projektkontext und Konventionen fuer dieses Projekt
+alwaysApply: true
+---
+
+# Projektregel
+
+## Tech Stack
+- Frontend: React 17, react-router-dom 6, Redux, Redux-Saga, Redux-Persist
+- Backend: Supabase Edge Function API (`https://heutudmyharxiwnofost.supabase.co/functions/v1/api/`) plus kleine Edge Functions in `functions/`
+- Daten: Redux Store Slices (`user`, `collections`, `bookmarks`, `tags`, `filters`, `oauth`, `config`, `backups`, `covers`, `import`)
+- Auth: Session Cookie (`credentials: include`) und OAuth/Social Login Flows
+- Integrationen: Sentry, Plausible, Cloud Connectors/Backups, Beta AI Endpoint
+- Deploy: Web/Extension/Electron via Webpack Build Targets, Vercel Rewrites/Headers fuer Web
+
+## Projektstruktur
+- `src/routes/` fuer Routing und Seiten (`account`, `extension`, `add`, `my`, `join`, `settings`)
+- `src/co/` fuer UI-Komponenten und Feature-Bloecke
+- `src/data/` fuer Actions, Reducers, Selectors, Sagas, API Modul
+- `src/target/` fuer target-spezifische Implementierungen (web/extension/fallback)
+- `functions/` fuer Edge/Proxy Funktionen
+- `build/` fuer Webpack Konfigurationen pro Target
+
+## Arbeitskonventionen
+- Bestehende Struktur und Dateiorganisation strikt beibehalten
+- Keinen neuen Tool-Stack oder State-Stack einfuehren
+- Vorhandene Redux/Saga Patterns und `src/data/modules/api.js` priorisieren
+- Neue Feature-Arbeit target-kompatibel halten (web, extension, electron)
+- Aussagen in Doku aus Code ableiten; Unsicherheiten als Annahme markieren
+
+## Fakt vs Annahme
+- Fakt: Haupt-Backend Calls laufen gegen die Supabase Edge Function API
+- Fakt: Projekt nutzt monorepo-aehnliche Struktur fuer mehrere App Targets
+- Annahme: Keine umfangreiche proprietaere Backend-Logik im Repo ausser `functions/`

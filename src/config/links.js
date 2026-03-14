@@ -4,9 +4,9 @@ import { target, environment } from '~target'
 let overrideProLink = ''
 if (target == 'extension')
     if (environment.includes('safari-ios'))
-        overrideProLink = 'https://api.raindrop.io/v1/auth/jwt?done_uri=raindrop://settings/pro'
+        overrideProLink = 'https://heutudmyharxiwnofost.supabase.co/functions/v1/api/auth/jwt?done_uri=raindrop://settings/pro'
     else if (environment.includes('safari'))
-        overrideProLink = 'https://api.raindrop.io/v1/auth/jwt?done_uri=rniomacsafari://subscribe'
+        overrideProLink = 'https://heutudmyharxiwnofost.supabase.co/functions/v1/api/auth/jwt?done_uri=rniomacsafari://subscribe'
 
 export default {
     app: {

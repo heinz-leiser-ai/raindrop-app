@@ -1,2 +1,2 @@
 # Subscribe
-https://api.raindrop.io/v1/auth/jwt?done_uri=rniomacsafari://subscribe
+https://heutudmyharxiwnofost.supabase.co/functions/v1/api/auth/jwt?done_uri=rniomacsafari://subscribe

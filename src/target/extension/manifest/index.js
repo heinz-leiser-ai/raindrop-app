@@ -103,7 +103,7 @@ module.exports = ({ vendor, production=false }, l) => {
 
 		host_permissions: [
 			...(!production ? ['http://localhost:3000/*'] : []),
-			...(vendor == 'firefox' ? ['*://api.raindrop.io/*'] : [])
+			...(vendor == 'firefox' ? ['*://heutudmyharxiwnofost.supabase.co/*'] : [])
 		],
 
 		optional_host_permissions: [
