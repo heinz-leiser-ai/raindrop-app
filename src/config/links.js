@@ -10,9 +10,9 @@ if (target == 'extension')
 
 export default {
     app: {
-        index: 'https://app.raindrop.io',
-        search: 'https://app.raindrop.io/my/0/',
-        import: 'https://app.raindrop.io/settings/import'
+        index: 'https://project-fijck.vercel.app',
+        search: 'https://project-fijck.vercel.app/my/0/',
+        import: 'https://project-fijck.vercel.app/settings/import'
     },
     
     download: 'https://raindrop.io/download',

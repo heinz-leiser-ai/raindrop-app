@@ -28,10 +28,23 @@ export default function(state = initialState, action){switch (action.type) {
 
         onSuccess && onSuccess()
 
+        // Backend can return `count` as number or object; normalize for UI progress
+        const normalizedCount = (
+            typeof count == 'number' ?
+                {
+                    ...initialState.file.count,
+                    bookmarks: count
+                } :
+                {
+                    ...initialState.file.count,
+                    ...(count||{})
+                }
+        )
+
         const file = state.file
             .set('status', items.length ? 'loaded' : 'empty')
             .set('items', items)
-            .set('count', count)
+            .set('count', normalizedCount)
                 
         return initialState.set('file', file)
     }

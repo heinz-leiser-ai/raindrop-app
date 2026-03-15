@@ -25,7 +25,7 @@ module.exports = ({ vendor, production=false }, l) => {
 
 		name:			'Raindrop.io'+(!production?' (Dev)':''),
 		description:	'__MSG_appDesc__',
-		homepage_url:	'https://app.raindrop.io',
+		homepage_url:	'https://project-fijck.vercel.app',
 		author:			'Mussabekov Rustem',
 		short_name:		'Raindrop.io',
 		default_locale:	'en',

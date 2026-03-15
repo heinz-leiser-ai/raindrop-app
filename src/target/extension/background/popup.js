@@ -3,7 +3,7 @@ import { environment } from '~target'
 
 //safari have problems with cookies in extension pages
 const base = environment.includes('safari') ? 
-    'https://app.raindrop.io' : 
+    'https://project-fijck.vercel.app' : 
     '/index.html#'
 
 export async function open(path, { width = 420, height = 600 } = {}) {
