@@ -26,6 +26,7 @@ export default function BookmarksItemsView({ spaceId, view, children }) {
             spaceId={spaceId}
             className={`
                 ${viewHide.map(field=>`hide-${field}`).join(' ')}
+                button-select
                 ${buttons.map(field=>`button-${field}`).join(' ')}
             `}>
             {children}
