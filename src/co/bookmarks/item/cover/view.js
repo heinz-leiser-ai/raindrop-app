@@ -10,21 +10,22 @@ import Preloader from '~co/common/preloader'
 //cache thumb/screenshot uri
 const thumbs = {}
 const getUri = (uri, mode='', domain)=>{
-    if (!thumbs[uri])
+    const cacheKey = uri + '|' + mode
+    if (!thumbs[cacheKey])
         switch (mode) {
             case 'screenshot':
-                thumbs[uri] = getScreenshotUri(uri)
+                thumbs[cacheKey] = getScreenshotUri(uri)
                 break
 
             case 'favicon':
-                thumbs[uri] = domain ? getFaviconUri(domain) : getThumbUri(uri)
+                thumbs[cacheKey] = domain ? getFaviconUri(domain) : getThumbUri(uri)
                 break
         
             default:
-                thumbs[uri] = getThumbUri(uri)
+                thumbs[cacheKey] = getThumbUri(uri)
                 break
         }
-    return thumbs[uri]
+    return thumbs[cacheKey]
 }
 
 //pixel density
