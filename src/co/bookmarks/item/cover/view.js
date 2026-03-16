@@ -3,6 +3,7 @@ import React from 'react'
 import getThumbUri from '~data/modules/format/thumb'
 import getScreenshotUri from '~data/modules/format/screenshot'
 import getFaviconUri from '~data/modules/format/favicon'
+import { THUMBNAIL_PROXY_URL } from '~data/constants/app'
 import thumbnailCache from '~data/modules/thumbnailCache'
 import size from './size'
 import Preloader from '~co/common/preloader'
@@ -34,6 +35,19 @@ const dpr = {
     masonry: (window.devicePixelRatio||1)+1,
     default: window.devicePixelRatio||1
 }
+
+//convert supabase proxy URL to same-origin Vercel proxy
+const SAME_ORIGIN_PREFIX = '/api/thumb'
+const toSameOrigin = (url)=>{
+    if (typeof window != 'undefined' &&
+        window.location.protocol == 'https:' &&
+        url.startsWith(THUMBNAIL_PROXY_URL))
+        return url.replace(THUMBNAIL_PROXY_URL, SAME_ORIGIN_PREFIX)
+    return url
+}
+
+const isFaviconView = (view)=>
+    view == 'simple' || view == 'list'
 
 //main component
 export default class BookmarkItemCover extends React.PureComponent {
@@ -73,31 +87,25 @@ export default class BookmarkItemCover extends React.PureComponent {
 
     getProxySrc = (props=this.props)=>{
         const { cover, view, link, domain, coverSize } = props
+
+        if (isFaviconView(view))
+            return domain ? getFaviconUri(domain) : ''
+
         let { width, ar } = size(view, coverSize)
         let uri
 
-        switch(view){
-            case 'simple':
-                if (link)
-                    uri = getUri(link, 'favicon', domain)
-                break
-
-            default:
-                if (cover && cover!='<screenshot>')
-                    uri = getUri(cover)
-                else if (link)
-                    uri = getUri(link, 'screenshot')
-                break
-        }
+        if (cover && cover!='<screenshot>')
+            uri = getUri(cover)
+        else if (link)
+            uri = getUri(link, 'screenshot')
 
         if (!uri)
             return ''
 
-        let mode = 'crop'
-        if (view == 'grid')
-            mode = 'fillmax'
+        const mode = view == 'grid' ? 'fillmax' : 'crop'
+        const fullUrl = `${uri}?mode=${mode}&fill=solid&width=${width||''}&ar=${ar||''}&dpr=${dpr[view]||dpr.default}`
 
-        return `${uri}?mode=${mode}&fill=solid&width=${width||''}&ar=${ar||''}&dpr=${dpr[view]||dpr.default}`
+        return toSameOrigin(fullUrl)
     }
 
     syncCachedSrc = async ()=>{
@@ -124,21 +132,17 @@ export default class BookmarkItemCover extends React.PureComponent {
         const { bookmarkId, link } = this.props
 
         try{
-            const img = new Image()
-            img.crossOrigin = 'anonymous'
+            const response = await fetch(proxySrc)
+            if (!response.ok)
+                return
 
-            await new Promise((resolve, reject)=>{
-                img.onload = resolve
-                img.onerror = reject
-                img.src = proxySrc
+            const blob = await response.blob()
+            const dataUrl = await new Promise((resolve, reject)=>{
+                const reader = new FileReader()
+                reader.onload = ()=>resolve(reader.result)
+                reader.onerror = ()=>reject(reader.error)
+                reader.readAsDataURL(blob)
             })
-
-            const canvas = document.createElement('canvas')
-            canvas.width = img.naturalWidth
-            canvas.height = img.naturalHeight
-            canvas.getContext('2d').drawImage(img, 0, 0)
-
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.85)
 
             if (this._isUnmounted)
                 return
@@ -157,45 +161,21 @@ export default class BookmarkItemCover extends React.PureComponent {
     }
 
     renderImage = ()=>{
-        const { cover, view, link, domain, coverSize, indicator, ...etc } = this.props
+        const { view, coverSize, indicator, bookmarkId, cover, link, domain, ...etc } = this.props
         const { cachedSrc } = this.state
-        let { width, height, ar } = size(view, coverSize) //use height only for img element
-        let uri
+        let { width, height, ar } = size(view, coverSize)
 
-        switch(view){
-            //simple always have a favicon
-            case 'simple':
-                if (link)
-                    uri = getUri(link, 'favicon', domain)
-                break
-
-            //in other view modes we show a thumbnail or screenshot
-            default:
-                if (cover && cover!='<screenshot>')
-                    uri = getUri(cover)
-                else if (link)
-                    uri = getUri(link, 'screenshot')
-                break
-        }
-
-        let mode
-        switch(view) {
-            case 'grid':
-                mode = 'fillmax'
-                break
-
-            default:
-                mode = 'crop'
-                break
-        }
-
-        const proxySrc = uri && `${uri}?mode=${mode}&fill=solid&width=${width||''}&ar=${ar||''}&dpr=${dpr[view]||dpr.default}`
-        const proxySrcSet = uri && `${uri}?mode=${mode}&fill=solid&format=webp&width=${width||''}&ar=${ar||''}&dpr=${dpr[view]||dpr.default}`
+        const proxySrc = this.getProxySrc()
         const finalSrc = cachedSrc || proxySrc
+        const isFav = isFaviconView(view)
+
+        const proxySrcSet = (!isFav && !cachedSrc && proxySrc)
+            ? proxySrc + '&format=webp'
+            : null
 
         return (
             <>
-                {!cachedSrc ? (
+                {proxySrcSet ? (
                     <source
                         srcSet={proxySrcSet}
                         type='image/webp' />
@@ -210,10 +190,9 @@ export default class BookmarkItemCover extends React.PureComponent {
                     alt=' '
                     {...etc}
                     src={finalSrc}
-                    //type='image/jpeg'
                     onLoadStart={indicator ? this.onImageLoadStart : undefined}
                     onLoad={()=>this.onImageLoad(proxySrc)}
-                    onError={indicator && uri ? this.onImageLoadSuccess : undefined} />
+                    onError={indicator && proxySrc ? this.onImageLoadSuccess : undefined} />
             </>
         )
     }
