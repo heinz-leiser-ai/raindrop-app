@@ -11,7 +11,7 @@ export const
 	THUMBNAIL_PROXY_URL	= `${API_ENDPOINT_URL}thumbnail/render`,
 	API_RETRIES 		= 3,
 	API_TIMEOUT 		= 30000,
-	FAVICON_URL 		= `${WORKERS_BASE_URL}/favicon`,
+	FAVICON_URL 		= 'https://www.google.com/s2/favicons',
 	RENDER_URL 			= `${WORKERS_BASE_URL}/render`,
 	PREVIEW_URL			= 'https://preview.systems',
 	BETA_AI_URL			= process.env.NODE_ENV == 'production' ? 'https://beta-ai.raindrop.io/ai' : 'http://localhost:5173/ai'

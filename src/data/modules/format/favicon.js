@@ -4,5 +4,5 @@ export default function(domain=''){
     if (!domain)
         return ''
 
-    return `${FAVICON_URL}/${domain}`
+    return `${FAVICON_URL}?sz=32&domain_url=${encodeURIComponent(domain)}`
 }
