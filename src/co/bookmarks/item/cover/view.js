@@ -156,7 +156,7 @@ export default class BookmarkItemCover extends React.PureComponent {
         if (this.props.indicator)
             this.onImageLoadSuccess()
 
-        if (proxySrc && !this.state.cachedSrc)
+        if (proxySrc && !this.state.cachedSrc && !isFaviconView(this.props.view))
             this.persistInCache(proxySrc)
     }
 
