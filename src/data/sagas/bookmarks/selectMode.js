@@ -2,6 +2,7 @@ import { call, put, takeEvery, select, all } from 'redux-saga/effects'
 import _ from 'lodash-es'
 import Api from '../../modules/api'
 import ApiError from '../../modules/error'
+import thumbnailCache from '../../modules/thumbnailCache'
 
 import { getUrl } from '../../helpers/bookmarks'
 
@@ -43,7 +44,14 @@ export default function* () {
 				...item,
 				media: [{link: item.link, screenshot: true}, ...item.media||[]],
 				cover: item.link
-			})
+			}),
+			after: function* ({ state, changed }) {
+				for(const _id of changed){
+					const item = state.bookmarks.elements[_id]
+					if (item && item.link)
+						yield call(thumbnailCache.deleteByLink, item.link)
+				}
+			}
 		})
 	)
 
@@ -108,7 +116,7 @@ export default function* () {
 	yield takeEvery(SELECT_MODE_REMOVE_SELECTED, removeBookmarks)
 }
 
-const updateBookmarks = ({validate, set, mutate}) => (
+const updateBookmarks = ({validate, set, mutate, after}) => (
 	function* ({onSuccess, onFail, ...action}) {
 		try{
 			//Validate
@@ -120,6 +128,9 @@ const updateBookmarks = ({validate, set, mutate}) => (
 
 			//Send update request
 			const changed = yield batchApiRequestHelper('put', fields)
+
+			if (typeof after == 'function')
+				yield call(after, { action, state, changed, fields })
 			
 			//Update local state
 			if (changed.length)

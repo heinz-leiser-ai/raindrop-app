@@ -4,10 +4,13 @@ import { useSelector } from 'react-redux'
 import { query as getQuery, makeSelectMode } from '~data/selectors/bookmarks'
 import { getUrlQuery } from '~data/helpers/bookmarks'
 import { API_ENDPOINT_URL } from '~data/constants/app'
+import useExportWithThumbnails from './withThumbnails'
 
 import Popover, { Menu, MenuItem, MenuSection } from '~co/overlay/popover'
 
 export default function BookmarksExportPopover({ spaceId = 0, pin, onClose }) {
+    const exportWithThumbnails = useExportWithThumbnails(spaceId)
+
     //space
     const query = useSelector(state=>getQuery(state, spaceId))
 
@@ -48,6 +51,14 @@ export default function BookmarksExportPopover({ spaceId = 0, pin, onClose }) {
                     <MenuItem href={`${prefix}/export.zip${suffix}`} download>
                         Download uploaded files
                     </MenuItem>
+
+                    <MenuItem href={false} onClick={exportWithThumbnails}>
+                        ZIP with thumbnails
+                    </MenuItem>
+
+                    <MenuSection>
+                        Includes only thumbnails that are already cached locally.
+                    </MenuSection>
                 </>) : (<>
                     <MenuItem href={`${prefix}/export.html${suffix}`} download>
                         HTML
@@ -65,8 +76,16 @@ export default function BookmarksExportPopover({ spaceId = 0, pin, onClose }) {
                         ZIP
                     </MenuItem>
 
+                    <MenuItem href={false} onClick={exportWithThumbnails}>
+                        ZIP with thumbnails
+                    </MenuItem>
+
                     <MenuSection>
                         Prefer ZIP if you need to<br/>download your uploaded files.
+                    </MenuSection>
+
+                    <MenuSection>
+                        ZIP with thumbnails includes only<br/>locally cached thumbnails.
                     </MenuSection>
                 </>)}
             </Menu>

@@ -1,6 +1,7 @@
 import { call, put, takeEvery, select } from 'redux-saga/effects'
 import Api from '../../modules/api'
 import _ from 'lodash-es'
+import thumbnailCache from '../../modules/thumbnailCache'
 
 import {
 	BOOKMARK_LOAD_REQ, BOOKMARK_LOAD_SUCCESS, BOOKMARK_LOAD_ERROR,
@@ -300,6 +301,8 @@ function* screenshot({_id, ignore=false, onSuccess, onFail}) {
 			set: setReq,
 			onSuccess
 		})
+
+		yield call(thumbnailCache.deleteByLink, item.link)
 	}catch(error){
 		yield put({
 			type: BOOKMARK_UPDATE_ERROR,

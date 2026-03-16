@@ -40,6 +40,7 @@ export default function BookmarkItemView(props) {
                 data-id={_id}
                 {...drag}>
                 <Cover
+                    bookmarkId={_id}
                     cover={cover}
                     domain={domain}
                     link={link}
