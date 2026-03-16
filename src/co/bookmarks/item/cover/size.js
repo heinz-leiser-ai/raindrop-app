@@ -1,6 +1,7 @@
 export default function(view, amplifier=1) {
     switch(view){
         case 'simple':
+        case 'list':
             return {
                 width: 20,
                 height: 20,
