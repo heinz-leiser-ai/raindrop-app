@@ -18,17 +18,39 @@ export default function AccountRedirect() {
         dispatch(refresh())
     }, [])
 
+    const saveRedirect = rawRedirect=>{
+        if (typeof rawRedirect != 'string')
+            return
+
+        let redirect = rawRedirect.trim()
+        if (!redirect)
+            return
+
+        //recover absolute url accidentally wrapped as "/https://..."
+        if (redirect.startsWith('/http://') || redirect.startsWith('/https://'))
+            redirect = redirect.slice(1)
+
+        //recover absolute url accidentally wrapped as "http://host/https://..."
+        const nestedAbsolute = redirect.match(/^https?:\/\/[^/]+\/(https?:\/\/.+)$/i)
+        if (nestedAbsolute?.[1])
+            redirect = nestedAbsolute[1]
+
+        const isInternalRedirect = redirect.startsWith('/') && !redirect.startsWith('//')
+        const isAllowedExternalRedirect = isURL(redirect, {
+            require_host: true,
+            require_protocol: true,
+            host_whitelist: [window.location.hostname, 'raindrop.io', /\.raindrop\.io$/]
+        })
+
+        if (isInternalRedirect || isAllowedExternalRedirect)
+            sessionStorage.setItem('redirect', new URL(redirect, location.href).toString())
+    }
+
     //save redirect link when is specified
     if (search) {
         const { redirect } = Object.fromEntries(new URLSearchParams(search))||{}
 
-        if (redirect && 
-            isURL(redirect, {
-                require_host: false, 
-                host_whitelist: ['raindrop.io', /\.raindrop\.io$/]
-            })
-        )
-            sessionStorage.setItem('redirect', new URL(redirect, location.href).toString())
+        saveRedirect(redirect)
     }
 
     //redirect when authorized
