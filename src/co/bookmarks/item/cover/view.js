@@ -123,20 +123,28 @@ export default class BookmarkItemCover extends React.PureComponent {
         const { bookmarkId, link } = this.props
 
         try{
-            const response = await fetch(proxySrc)
-            if (!response.ok)
-                return
+            const img = new Image()
+            img.crossOrigin = 'anonymous'
 
-            const blob = await response.blob()
-            const dataUrl = await new Promise((resolve, reject)=>{
-                const reader = new FileReader()
-                reader.onload = ()=>resolve(reader.result)
-                reader.onerror = ()=>reject(reader.error)
-                reader.readAsDataURL(blob)
+            await new Promise((resolve, reject)=>{
+                img.onload = resolve
+                img.onerror = reject
+                img.src = proxySrc
             })
 
+            const canvas = document.createElement('canvas')
+            canvas.width = img.naturalWidth
+            canvas.height = img.naturalHeight
+            canvas.getContext('2d').drawImage(img, 0, 0)
+
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.85)
+
+            if (this._isUnmounted)
+                return
+
             await thumbnailCache.set(proxySrc, dataUrl, { bookmarkId, link })
-        }catch(error){}
+            this.setState({ cachedSrc: dataUrl })
+        }catch(e){}
     }
 
     onImageLoad = (proxySrc)=>{
