@@ -3,10 +3,6 @@
 
     "rewrites": [
         {
-            "source": "/api/thumb/:path*",
-            "destination": "https://heutudmyharxiwnofost.supabase.co/functions/v1/api/thumbnail/render/:path*"
-        },
-        {
             "source": "/(account|add|extension|join|my|settings|suggestions)(/.*)?",
             "destination": "/index.html"
         },

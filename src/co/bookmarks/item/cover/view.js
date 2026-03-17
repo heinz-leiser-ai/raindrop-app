@@ -3,7 +3,6 @@ import React from 'react'
 import getThumbUri from '~data/modules/format/thumb'
 import getScreenshotUri from '~data/modules/format/screenshot'
 import getFaviconUri from '~data/modules/format/favicon'
-import { THUMBNAIL_PROXY_URL } from '~data/constants/app'
 import thumbnailCache from '~data/modules/thumbnailCache'
 import size from './size'
 import Preloader from '~co/common/preloader'
@@ -36,15 +35,6 @@ const dpr = {
     default: window.devicePixelRatio||1
 }
 
-//convert supabase proxy URL to same-origin Vercel proxy
-const SAME_ORIGIN_PREFIX = '/api/thumb'
-const toSameOrigin = (url)=>{
-    if (typeof window != 'undefined' &&
-        window.location.protocol == 'https:' &&
-        url.startsWith(THUMBNAIL_PROXY_URL))
-        return url.replace(THUMBNAIL_PROXY_URL, SAME_ORIGIN_PREFIX)
-    return url
-}
 
 const isFaviconView = (view)=>
     view == 'simple' || view == 'list'
@@ -105,7 +95,7 @@ export default class BookmarkItemCover extends React.PureComponent {
         const mode = view == 'grid' ? 'fillmax' : 'crop'
         const fullUrl = `${uri}?mode=${mode}&fill=solid&width=${width||''}&ar=${ar||''}&dpr=${dpr[view]||dpr.default}`
 
-        return toSameOrigin(fullUrl)
+        return fullUrl
     }
 
     syncCachedSrc = async ()=>{
