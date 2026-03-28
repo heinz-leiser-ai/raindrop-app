@@ -62,9 +62,27 @@ window.onload = ()=>{
         })
     )
 
-    //update authenticated status class
+    //update authenticated status class (Bearer aus Extension-Storage, RAIN-2)
     async function updateAuthenticatedClass() {
-        const res = await fetch('https://heutudmyharxiwnofost.supabase.co/functions/v1/api/user', { credentials: 'include' } )
+        const ext = window.browser || window.chrome
+        let token = null
+        try {
+            if (ext && ext.storage && ext.storage.local) {
+                const data = await new Promise((resolve) => {
+                    ext.storage.local.get(['rd_bearer_access'], resolve)
+                })
+                token = data.rd_bearer_access
+            }
+        } catch (e) {}
+
+        const headers = { Accept: 'application/json' }
+        if (token)
+            headers['Authorization'] = 'Bearer ' + token
+
+        const res = await fetch('https://heutudmyharxiwnofost.supabase.co/functions/v1/api/user', {
+            credentials: 'include',
+            headers,
+        })
         const { result } = await res.json()
         if (result) 
             document.documentElement.classList.add('authenticated')

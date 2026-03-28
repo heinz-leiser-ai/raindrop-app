@@ -1,36 +1,77 @@
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import t from '~t'
-import { API_ENDPOINT_URL } from '~data/constants/app'
 import sessionStorage from '~modules/sessionStorage'
 
 import { Helmet } from 'react-helmet'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { loginWithPassword } from '~data/actions/user'
+import { userStatus, errorReason } from '~data/selectors/user'
+
 import { Layout, Text, Label } from '~co/common/form'
 import Button from '~co/common/button'
 import Social from '../social'
 import Alert from '~co/common/alert'
+import Preloader from '~co/common/preloader'
+import { Error } from '~co/overlay/dialog'
 
 export default function AccountLogin() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [search] = useSearchParams()
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
+
+    const status = useSelector(state=>userStatus(state).login)
+    const loginErr = useSelector(state=>errorReason(state).login)
     const redirect = sessionStorage.getItem('redirect') || ''
 
     const error = useMemo(()=>{
-        const { error } = Object.fromEntries(new URLSearchParams(search))||{}
-        return error
+        const { error: qerr } = Object.fromEntries(new URLSearchParams(search))||{}
+        return qerr
     }, [search])
+
+    useEffect(()=>{
+        if (!loginErr) return
+        Error(loginErr).catch(()=>{})
+    }, [loginErr])
 
     const onChangeEmailField = useCallback(e=>setEmail(e.target.value), [])
     const onChangePasswordField = useCallback(e=>setPassword(e.target.value), [])
 
+    const onSubmit = useCallback((e)=>{
+        e.preventDefault()
+        dispatch(loginWithPassword(
+            { email, password },
+            ()=>{
+                const r = sessionStorage.getItem('redirect')
+                if (typeof r == 'string' && r.trim()) {
+                    sessionStorage.removeItem('redirect')
+                    try {
+                        const u = new URL(r, window.location.origin)
+                        if (u.origin.toLowerCase() === window.location.origin.toLowerCase())
+                            navigate(`${u.pathname}${u.search}${u.hash}`, { replace: true })
+                        else
+                            window.location.href = r
+                    } catch {
+                        navigate('/', { replace: true })
+                    }
+                } else
+                    navigate('/', { replace: true })
+            },
+            ()=>{}
+        ))
+    }, [dispatch, email, password, navigate])
+
+    const loading = status === 'loading'
+
     return (
-        <form method='POST' action={`${API_ENDPOINT_URL}auth/email/login`}>
+        <form onSubmit={onSubmit}>
             <Helmet><title>{t.s('signIn')}</title></Helmet>
 
             <Layout>
                 {error ? (
-                    <Alert variant='danger'>{error}</Alert>
+                    <Alert variant='danger'>{decodeURIComponent(error)}</Alert>
                 ) : null}
 
                 <Label>Email {t.s('or')} {t.s('username').toLowerCase()}</Label>
@@ -43,6 +84,7 @@ export default function AccountLogin() {
                     autoCapitalize='none'
                     spellCheck='false'
                     value={email}
+                    disabled={loading}
                     onChange={onChangeEmailField} />
 
                 <Label>
@@ -61,18 +103,21 @@ export default function AccountLogin() {
                     name='password'
                     required
                     value={password}
+                    disabled={loading}
                     onChange={onChangePasswordField} />
 
-                <input type='hidden' name='redirect' value={redirect} />
+                <input type='hidden' name='redirect' value={redirect} readOnly />
 
                 <Button
-                    as='input'
                     type='submit'
                     variant='primary'
                     data-block
-                    value={t.s('signIn')} />
+                    disabled={loading}>
+                    {loading ? <><Preloader /> {t.s('signIn')}…</> : t.s('signIn')}
+                </Button>
 
-                <Social />
+                <Social 
+                    disabled={loading} />
 
                 <Button
                     as={Link}

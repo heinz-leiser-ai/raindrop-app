@@ -3,6 +3,7 @@ import {
 	USER_UPDATE_REQ, USER_UPDATE_SUCCESS, USER_UPDATE_ERROR,
 	USER_AVATAR_UPLOAD_REQ,
 	USER_NOT_AUTHORIZED,
+	USER_AUTH_TOKENS_SET,
 	USER_REFRESH_REQ,
 	USER_LOGIN_PASSWORD,
 	USER_REGISTER_PASSWORD,
@@ -28,7 +29,9 @@ export default function(state = initialState, action){switch (action.type) {
 		const { 
 			current, 
 			subscription, 
-			status 
+			status,
+			accessToken,
+			refreshToken,
 		} = action.payload && action.payload.user||{}
 
 		if (!current)
@@ -45,6 +48,14 @@ export default function(state = initialState, action){switch (action.type) {
 			.set('fromCache', true)
 			.set('current', current)
 			.setIn(['status', 'authorized'], (status||initialState.status).authorized)
+			.set('accessToken', accessToken ?? null)
+			.set('refreshToken', refreshToken ?? null)
+	}
+
+	case USER_AUTH_TOKENS_SET:{
+		return state
+			.set('accessToken', action.accessToken ?? null)
+			.set('refreshToken', action.refreshToken ?? null)
 	}
 
 	//Load
@@ -127,6 +138,8 @@ export default function(state = initialState, action){switch (action.type) {
 			.set('status', initialState.status.set('authorized', 'yes'))
 			.set('current', normalizeUser(action.user))
 			.set('subscription', state.subscription)
+			.set('accessToken', state.accessToken)
+			.set('refreshToken', state.refreshToken)
 	}
 
 	case USER_UPDATE_ERROR:{
@@ -151,6 +164,8 @@ export default function(state = initialState, action){switch (action.type) {
 	case USER_NOT_AUTHORIZED:{
 		return initialState
 			.set('status', initialState.status.set('authorized', 'no'))
+			.set('accessToken', null)
+			.set('refreshToken', null)
 	}
 
 	case USER_SUBSCRIPTION_LOAD_REQ:{
@@ -207,5 +222,8 @@ const initialState = Immutable({
 		tfa:''
 	},
 	current: blankCurrent,
-	subscription: blankSubscription
+	subscription: blankSubscription,
+
+	accessToken: null,
+	refreshToken: null,
 })

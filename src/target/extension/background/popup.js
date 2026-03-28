@@ -1,10 +1,7 @@
 import browser from 'webextension-polyfill'
-import { environment } from '~target'
 
-//safari have problems with cookies in extension pages
-const base = environment.includes('safari') ? 
-    'https://project-fijck.vercel.app' : 
-    '/index.html#'
+// SPA unter chrome-extension:// — gleicher Ansatz wie Chrome (RAIN-2: Auth per Bearer)
+const base = '/index.html#'
 
 export async function open(path, { width = 420, height = 600 } = {}) {
     let origin = { left: 0, top: 0, width: 0, height: 0 }

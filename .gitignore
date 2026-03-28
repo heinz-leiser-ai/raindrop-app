@@ -30,3 +30,4 @@ DerivedData
 *.xcuserstate
 project.xcworkspace
 .vercel
+.cursor/debug-1006e9.log

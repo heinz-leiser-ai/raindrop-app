@@ -7,6 +7,7 @@ import Layout from './layout'
 import Redirect from './redirect'
 import Electron from './electron'
 import Extension from './extension'
+import ExtensionAuthCallback from './extension/callback'
 import JWT from './jwt'
 import Login from './login'
 import Lost from './lost'
@@ -35,6 +36,7 @@ export default function PageAccount() {
                 }})()}
 
                 <Route path='jwt' element={<JWT />} />
+                <Route path='extension/callback' element={<ExtensionAuthCallback />} />
                 <Route path='tfa/login/:token' element={<TfaLogin />} />
                 <Route path='tfa/revoke/:token' element={<TfaRevoke />} />
                 <Route path='recover/:token' element={<Recover />} />

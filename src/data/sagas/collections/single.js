@@ -332,7 +332,7 @@ function* uploadCover({ _id=0, cover, ignore=false, onSuccess, onFail }) {
 		const { item={} } = yield call(Api.upload, `collection/${_id}/cover`, { cover }, { timeout: 0 })
 
 		yield put({
-			type: COLLECTION_UPDATE_REQ,
+			type: COLLECTION_UPDATE_SUCCESS,
 			_id,
 			item: item,
 			onSuccess, onFail

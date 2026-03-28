@@ -16,7 +16,8 @@ import {
 } from '../constants/user'
 
 export const load = ()=>({
-	type: USER_LOAD_REQ
+	type: USER_LOAD_REQ,
+	reset: false
 })
 
 export const refresh = ()=>({

@@ -28,7 +28,8 @@ module.exports = (env={}, args={}) => {
 
             entry: {
                 manifest: './target/extension/manifest/index.js',
-                background: './target/extension/background/index.js'
+                background: './target/extension/background/index.js',
+                authBridge: './target/extension/contentScripts/authBridge.js'
             },
 
             output: {

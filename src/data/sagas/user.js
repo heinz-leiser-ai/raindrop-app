@@ -8,6 +8,7 @@ import {
 	USER_REFRESH_REQ,
 	USER_LOGOUT_REQ,
 	USER_NOT_AUTHORIZED,
+	USER_AUTH_TOKENS_SET,
 	USER_LOGIN_PASSWORD,
 	USER_REGISTER_PASSWORD,
 	USER_LOGIN_NATIVE,
@@ -21,6 +22,7 @@ import {
 	USER_TFA_VERIFY,
 	USER_TFA_REVOKE
 } from '../constants/user'
+import { setAuthTokens, clearAuthTokens } from '../modules/authSession'
 
 //Requests
 export default function* () {
@@ -52,7 +54,7 @@ export default function* () {
 	yield takeLatest(USER_SUBSCRIPTION_LOAD_REQ, loadSubscription)
 }
 
-function* loadUser({ignore=false, reset=true, way, onSuccess, onFail}) {
+function* loadUser({ignore=false, reset=false, way, onSuccess, onFail}) {
 	if (ignore)
 		return;
 
@@ -95,11 +97,16 @@ function* uploadAvatar({ avatar, ignore=false, onSuccess, onFail }) {
 
 function* loginWithPassword({email, password, onSuccess, onFail}) {
 	try {
-		const { tfa } = yield call(Api.post, 'auth/email/login', { email, password });
+		const res = yield call(Api.post, 'auth/email/login', { email, password });
 
-		if (tfa){
+		if (res.tfa){
 			onSuccess({ tfa })
 			return
+		}
+
+		if (res.token && res.refresh_token) {
+			setAuthTokens(res.token, res.refresh_token)
+			yield put({ type: USER_AUTH_TOKENS_SET, accessToken: res.token, refreshToken: res.refresh_token })
 		}
 
 		yield put({type: USER_REFRESH_REQ, way: 'login', onSuccess});
@@ -111,7 +118,12 @@ function* loginWithPassword({email, password, onSuccess, onFail}) {
 function* registerWithPassword({name, email, password, onSuccess, onFail}) {
 	try {
 		yield call(Api.post, 'auth/email/signup', {name, email:email||'0', password});
-		yield call(Api.post, 'auth/email/login', {email, password});
+		const res = yield call(Api.post, 'auth/email/login', {email, password});
+
+		if (res.token && res.refresh_token) {
+			setAuthTokens(res.token, res.refresh_token)
+			yield put({ type: USER_AUTH_TOKENS_SET, accessToken: res.token, refreshToken: res.refresh_token })
+		}
 
 		yield put({type: USER_REFRESH_REQ, way: 'register', onSuccess});
 	} catch (error) {
@@ -121,7 +133,7 @@ function* registerWithPassword({name, email, password, onSuccess, onFail}) {
 
 function* loginNative({params, onSuccess, onFail}) {
 	try {
-		const { auth, tfa, ...etc } = yield call(Api.get, 'auth/'+params.provider+'/native'+params.token);
+		const { auth, tfa, token, refresh_token, ...etc } = yield call(Api.get, 'auth/'+params.provider+'/native'+params.token);
 
 		if (tfa){
 			onSuccess({ tfa })
@@ -131,6 +143,11 @@ function* loginNative({params, onSuccess, onFail}) {
 		if (!auth)
 			throw new ApiError(etc)
 
+		if (token && refresh_token) {
+			setAuthTokens(token, refresh_token)
+			yield put({ type: USER_AUTH_TOKENS_SET, accessToken: token, refreshToken: refresh_token })
+		}
+
 		yield put({type: USER_REFRESH_REQ, way: 'native', onSuccess});
 	} catch (error) {
 		yield put({type: USER_LOAD_ERROR, error, way: 'native', onFail});
@@ -139,9 +156,14 @@ function* loginNative({params, onSuccess, onFail}) {
 
 function* loginJWT({token, onSuccess, onFail}) {
 	try {
-		const {result, ...etc} = yield call(Api.post, 'auth/jwt', { token });
+		const {result, token: accessToken, refresh_token, ...etc} = yield call(Api.post, 'auth/jwt', { token });
 		if (!result)
 			throw new ApiError(etc)
+
+		if (accessToken && refresh_token) {
+			setAuthTokens(accessToken, refresh_token)
+			yield put({ type: USER_AUTH_TOKENS_SET, accessToken, refreshToken: refresh_token })
+		}
 
 		yield put({type: USER_REFRESH_REQ, way: 'jwt', onSuccess});
 	} catch (error) {
@@ -191,6 +213,7 @@ function* logout({ ignore=false, all=false }) {
 
 	try {
 		yield call(Api.get, 'auth/logout?no_redirect&'+(all===true?'all':''))
+		clearAuthTokens()
 		yield put({type: 'RESET'})
 		yield put({type: USER_NOT_AUTHORIZED})
 	} catch ({message}) {

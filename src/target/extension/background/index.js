@@ -8,6 +8,7 @@ import storage from './storage'
 import highlights from './highlights'
 import popup from './popup'
 import fixSafariPermissions from './fix-safari-permissions'
+import extensionAuth from './extensionAuth'
 
 action()
 commands()
@@ -19,3 +20,4 @@ storage()
 highlights()
 popup()
 fixSafariPermissions()
+extensionAuth()

@@ -88,6 +88,16 @@ module.exports = ({ vendor, production=false }, l) => {
 			} : {})
 		},
 
+		content_scripts: [{
+			matches: [
+				'https://project-fijck.vercel.app/*',
+				'https://app.raindrop.io/*',
+				...(!production ? ['http://localhost:3000/*'] : []),
+			],
+			js: ['assets/authBridge.js'],
+			run_at: 'document_idle',
+		}],
+
 		permissions: [
 			'contextMenus',
 			'activeTab',

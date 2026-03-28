@@ -7,6 +7,58 @@ import {
 	API_TIMEOUT
 } from '../constants/app'
 import ApiError from './error'
+import { getAuthHeaderObject, runRefreshIfNeeded } from './authSession'
+
+function mergeFetchOptions(options = {}) {
+	const authHeaders = getAuthHeaderObject()
+	return {
+		...options,
+		headers: {
+			...(options.headers || {}),
+			...authHeaders,
+		},
+	}
+}
+
+function shouldTryRefresh401(url) {
+	if (url.includes('auth/refresh')) return false
+	if (url.includes('auth/email/login')) return false
+	if (url.includes('auth/email/signup')) return false
+	if (url.includes('auth/jwt')) return false
+	if (url.includes('auth/email/lost')) return false
+	if (url.includes('auth/email/recover')) return false
+	return true
+}
+
+function rawFetch(url, options) {
+	return fetch(url, options)
+}
+
+function* fetchWithOptionalRefresh(finalURL, relativePath, options) {
+	const base = mergeFetchOptions({ ...defaultOptions, ...options })
+	let res = yield call(rawFetch, finalURL, base)
+
+	if (
+		res.status === 401 &&
+		!options._authRetried &&
+		shouldTryRefresh401(relativePath)
+	) {
+		const refreshed = yield call(runRefreshIfNeeded)
+		if (refreshed) {
+			const retryOpts = mergeFetchOptions({
+				...defaultOptions,
+				...options,
+				_authRetried: true,
+			})
+			res = yield call(rawFetch, finalURL, retryOpts)
+		}
+	}
+
+	if (res.status < 200 || res.status >= 300) {
+		throw new ApiError({ status: res.status, errorMessage: 'fail_fetch_status' })
+	}
+	return res
+}
 
 function* get(url, overrideOptions={}) {
 	const res = yield req(url, overrideOptions, API_RETRIES)
@@ -32,7 +84,8 @@ function* put(url, data={}, options={}) {
 		method: 'PUT',
 		headers: {
 			'Accept': 'application/json',
-			'Content-Type': 'application/json'
+			'Content-Type': 'application/json',
+			...(options.headers || {}),
 		},
 		body: JSON.stringify(data)
 	})
@@ -48,7 +101,8 @@ function* post(url, data={}, options={}, retries=0) {
 		method: 'POST',
 		headers: {
 			'Accept': 'application/json',
-			'Content-Type': 'application/json'
+			'Content-Type': 'application/json',
+			...(options.headers || {}),
 		},
 		body: JSON.stringify(data)
 	}, retries)
@@ -89,7 +143,8 @@ function* del(url, data={}, options={}) {
 		method: 'DELETE',
 		headers: {
 			'Accept': 'application/json',
-			'Content-Type': 'application/json'
+			'Content-Type': 'application/json',
+			...(options.headers || {}),
 		},
 		...(data ? { body: JSON.stringify(data) } : {})
 	})
@@ -107,12 +162,14 @@ function* req(url, options={}, retries=0) {
 	else if (url.indexOf('http') == 0)
 		finalURL = url
 
+	const relativePath = url.indexOf('http') == 0 ? url : url
+
 	let errorMessage = 'failed to load'
 
 	for(let i = 0; i <= retries; i++){
 		try{
 			const winner = yield race({
-				req: call(fetchWrap, finalURL, {...defaultOptions, ...options}),
+				req: call(fetchWithOptionalRefresh, finalURL, relativePath, options),
 				...( options.timeout !== 0 ? { t: delay(API_TIMEOUT) } : {}) //timeout could be turned off if options.timeout=0
 			})
 
@@ -135,16 +192,6 @@ function* req(url, options={}, retries=0) {
 
 	throw new ApiError({ errorMessage: `${errorMessage} ${finalURL}` })
 }
-
-const fetchWrap = (url, options)=>(
-	fetch(url, options)
-		.then((res)=>{
-			if (res.status >= 200 && res.status < 300)
-				return res
-			else
-				throw new ApiError({ status: res.status, errorMessage: 'fail_fetch_status' })
-		})
-)
 
 const checkJSON = (json)=>{
 	if (typeof json.auth === 'boolean')

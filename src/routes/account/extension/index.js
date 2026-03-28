@@ -8,13 +8,19 @@ import { Layout, Title } from '~co/common/form'
 import Button from '~co/common/button'
 
 function Extension() {
+    const loginUrl = new URL('/account/login', config.links.app.index)
+    loginUrl.searchParams.set(
+        'redirect',
+        '/account/extension/callback'
+    )
+
     return (
         <Layout>
             <Title className={s.center}>{t.s('startToSave')}</Title>
             <div />
 
             <Button 
-                href={new URL('/account/extension', config.links.app.index).href}
+                href={loginUrl.href}
                 target='_blank'
                 variant='primary'
                 data-block

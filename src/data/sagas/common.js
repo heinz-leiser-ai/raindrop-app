@@ -1,5 +1,7 @@
 import { put, takeEvery } from 'redux-saga/effects'
+import { REHYDRATE } from 'redux-persist/src/constants'
 import ApiError from '../modules/error'
+import { setAuthTokens, clearAuthTokens } from '../modules/authSession'
 
 import { USER_NOT_AUTHORIZED, USER_LOAD_SUCCESS, USER_UPDATE_SUCCESS } from '../constants/user'
 
@@ -7,9 +9,24 @@ import { USER_NOT_AUTHORIZED, USER_LOAD_SUCCESS, USER_UPDATE_SUCCESS } from '../
 export default function* () {
 	yield takeEvery(action => action.error, checkAuth)
 	yield takeEvery([USER_LOAD_SUCCESS, USER_UPDATE_SUCCESS], thirdPartyUserUpdate)
+	yield takeEvery(REHYDRATE, rehydrateAuthSession)
+	yield takeEvery(USER_NOT_AUTHORIZED, function* () {
+		clearAuthTokens()
+	})
 }
 
-//Auth / error check
+function* rehydrateAuthSession(action) {
+	const u = action.payload && action.payload.user
+	if (!u) return
+	const at = u.accessToken
+	const rt = u.refreshToken
+	if (at && rt)
+		setAuthTokens(at, rt)
+	else
+		clearAuthTokens()
+}
+
+//Auth / error check — kein RESET: gecachte Collections/Bookmarks bleiben (RAIN-1)
 function* checkAuth(action={}) {
 	const { error } = action
 
@@ -21,7 +38,6 @@ function* checkAuth(action={}) {
 	if (typeof error == 'object' &&
 		error instanceof ApiError &&
 		error.status==401){
-		yield put({type: 'RESET'})
 		yield put({type: USER_NOT_AUTHORIZED})
 	}
 }
