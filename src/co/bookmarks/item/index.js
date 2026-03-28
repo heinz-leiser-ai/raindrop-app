@@ -126,12 +126,14 @@ export default connect(
         return (state, { _id, spaceId, view })=>{
             const item = bookmark(state, _id)
             const selectModeEnabled = getSelectModeEnabled(state, spaceId)
+            const sm = state.bookmarks.selectMode
     
             return {
                 item,
                 tags: tags(state, _id),
                 highlights: getHighlights(state, _id, 3),
                 selected: selectModeEnabled ? getIsSelected(state, spaceId, _id) : false,
+                selectedCount: selectModeEnabled ? (sm.all ? (state.bookmarks.spaces[spaceId]?.ids?.length || 0) : sm.ids.length) : 0,
                 selectModeEnabled,
                 selectDisabled: selectModeWorking(state) ? true : false,
                 highlight: getHighlight(state, spaceId, _id),

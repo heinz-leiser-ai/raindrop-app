@@ -44,13 +44,21 @@ class BookmarksDropArea extends React.Component {
 
     onDropCustom = ([type, data])=>
         new Promise((res, rej)=>{
+            const targetId = parseInt(this.props.spaceId)
+
             switch(type){
-                case 'bookmark':
-                    this.props.oneMove(parseInt(data), parseInt(this.props.spaceId), res, rej)
-                break
+                case 'bookmark': {
+                    const [bookmarkId, sourceSpaceId] = Array.isArray(data) ? data : [data, null]
+                    if (sourceSpaceId != null && parseInt(sourceSpaceId) === targetId)
+                        return res()
+                    this.props.oneMove(parseInt(bookmarkId), targetId, res, rej)
+                    break
+                }
 
                 case 'selected_bookmarks':
-                    this.props.moveSelected(parseInt(data), parseInt(this.props.spaceId), res, rej)
+                    if (parseInt(data) === targetId)
+                        return res()
+                    this.props.moveSelected(parseInt(data), targetId, res, rej)
                 break
 
                 default:

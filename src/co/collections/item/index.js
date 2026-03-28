@@ -157,19 +157,30 @@ export default class CollectionsItem extends React.PureComponent {
 
         const to = `/my/${item._id}`
 
+        const canDrop = item.access && item.access.level >= 3
+
         return (
             <>
-                <DropBookmarks spaceId={item._id}>
-                    {drop=>
-                        <Component 
-                            {...item}
-                            {...props}
-                            {...drop}
-                            isDropping={props.isDropping||drop.isDropping}
-                            {...this.handlers}
-                            to={to} />
-                    }
-                </DropBookmarks>
+                {canDrop ? (
+                    <DropBookmarks spaceId={item._id}>
+                        {drop=>
+                            <Component 
+                                {...item}
+                                {...props}
+                                {...drop}
+                                isDropping={props.isDropping||drop.isDropping}
+                                {...this.handlers}
+                                to={to} />
+                        }
+                    </DropBookmarks>
+                ) : (
+                    <Component 
+                        {...item}
+                        {...props}
+                        isDropping={props.isDropping}
+                        {...this.handlers}
+                        to={to} />
+                )}
 
                 {this.state.menu ? (
                     <Contextmenu 
