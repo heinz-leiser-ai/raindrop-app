@@ -23,7 +23,7 @@ Sentry.setTag('version', pkg.version)
 export default class MySentry extends React.Component {
     render() {
         return (
-            <Sentry.ErrorBoundary showDialog>
+            <Sentry.ErrorBoundary showDialog={target != 'extension'}>
                 {this.props.children}
             </Sentry.ErrorBoundary>
         )

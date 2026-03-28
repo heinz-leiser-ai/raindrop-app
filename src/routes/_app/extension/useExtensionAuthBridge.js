@@ -4,6 +4,7 @@ import browser from '~target/extension/browser'
 import { setAuthTokens } from '~data/modules/authSession'
 import { USER_AUTH_TOKENS_SET } from '~data/constants/user'
 import { refresh } from '~data/actions/user'
+import { userAccessToken, userRefreshToken } from '~data/selectors/user'
 
 const KEYS = ['rd_bearer_access', 'rd_bearer_refresh']
 
@@ -16,8 +17,8 @@ function readStorageTokens(data) {
 
 export default function useExtensionAuthBridge() {
 	const dispatch = useDispatch()
-	const accessToken = useSelector((state) => state.user.get('accessToken'))
-	const refreshToken = useSelector((state) => state.user.get('refreshToken'))
+	const accessToken = useSelector(userAccessToken)
+	const refreshToken = useSelector(userRefreshToken)
 	const syncing = useRef(false)
 
 	useEffect(() => {

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import t from '~t'
 import { useSelector } from 'react-redux'
+import { userAccessToken, userRefreshToken } from '~data/selectors/user'
 
 import { Layout, Title } from '~co/common/form'
 import Button from '~co/common/button'
@@ -9,8 +10,8 @@ import Button from '~co/common/button'
  * Nach WebApp-Login: Tokens per postMessage ans Content-Script (RAIN-2).
  */
 export default function ExtensionAuthCallback() {
-	const accessToken = useSelector((state) => state.user.get('accessToken'))
-	const refreshToken = useSelector((state) => state.user.get('refreshToken'))
+	const accessToken = useSelector(userAccessToken)
+	const refreshToken = useSelector(userRefreshToken)
 	const sentRef = useRef(false)
 
 	useEffect(() => {

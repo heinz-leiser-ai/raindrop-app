@@ -69,7 +69,11 @@ export async function reload(force=false) {
     }
     loading = false
 
-    if (!text) return;
+    if (text == null || text === '') return
+    if (typeof text !== 'string') {
+        console.warn('[links] raindrops/links expected text/plain string, got', typeof text)
+        return
+    }
 
     text.split('\n').forEach(line=>{
         const [_id, href] = line.split(options.divider)

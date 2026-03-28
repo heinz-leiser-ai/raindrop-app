@@ -109,6 +109,7 @@ export default function AccountLogin() {
                 <input type='hidden' name='redirect' value={redirect} readOnly />
 
                 <Button
+                    as='button'
                     type='submit'
                     variant='primary'
                     data-block
