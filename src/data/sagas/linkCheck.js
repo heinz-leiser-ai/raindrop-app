@@ -25,10 +25,24 @@ export default function* () {
 	yield takeEvery(LINK_CHECK_JOURNAL_CLEAR_REQ, clearJournal)
 }
 
-function* startCheck() {
+function* startCheck({ collectionId }) {
 	try {
-		const { config: { broken_level, link_check_skip_days } } = yield select()
-		const res = yield call(Api.post, LINK_CHECK_BASE + 'start', { broken_level, skip_days: link_check_skip_days ?? 2 })
+		const state = yield select()
+		const { config: { broken_level, link_check_skip_days } } = state
+		const body = { broken_level, skip_days: link_check_skip_days ?? 2 }
+
+		if (collectionId && collectionId > 0) {
+			const items = state.collections.items
+			const sorted = Object.values(items).sort((a, b) => (a.sort || 0) - (b.sort || 0))
+			const collectIds = (parentId) => {
+				const ids = [parentId]
+				sorted.forEach(c => { if (c.parentId == parentId) ids.push(...collectIds(c._id)) })
+				return ids
+			}
+			body.collection_ids = collectIds(collectionId)
+		}
+
+		const res = yield call(Api.post, LINK_CHECK_BASE + 'start', body)
 
 		yield put({ type: LINK_CHECK_START_SUCCESS, runId: res.runId, total: res.total })
 

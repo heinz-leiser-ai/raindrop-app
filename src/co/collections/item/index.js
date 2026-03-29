@@ -1,5 +1,7 @@
 import React from 'react'
 import t from '~t'
+import { store } from '~data'
+import { start as linkCheckStart } from '~data/actions/linkCheck'
 
 import { Confirm } from '~co/overlay/dialog'
 import Blank from './blank'
@@ -120,6 +122,11 @@ export default class CollectionsItem extends React.PureComponent {
 
         onCreateNewChildClick: async()=>{
             this.props.actions.addBlank(this.props.item._id, true)
+        },
+
+        onLinkCheckClick: ()=>{
+            store.dispatch(linkCheckStart(this.props.item._id))
+            this.setState({ menu: false })
         },
     
         onKeyUp: (e)=>{

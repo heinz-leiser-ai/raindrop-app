@@ -6,8 +6,9 @@ import {
 	LINK_CHECK_DISMISS
 } from '../constants/linkCheck'
 
-export const start = ()=>({
-	type: LINK_CHECK_START_REQ
+export const start = (collectionId)=>({
+	type: LINK_CHECK_START_REQ,
+	collectionId
 })
 
 export const getStatus = ()=>({

@@ -55,7 +55,7 @@ function UserProfileMenu({
                     {t.s('blog')}
                 </MenuItem>
 
-                <MenuItem disabled style={{opacity: 0.5, cursor: 'default'}}>
+                <MenuItem style={{cursor: 'default'}}>
                     <Icon name='info' />
                     v{pjson.version}
                 </MenuItem>

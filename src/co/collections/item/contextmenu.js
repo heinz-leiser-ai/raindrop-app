@@ -3,13 +3,14 @@ import t from '~t'
 import config from '~config'
 import { target } from '~target'
 import Popover, { Menu, MenuItem, MenuSeparator } from '~co/overlay/popover'
+import Icon from '~co/common/icon'
 
 export default class CollectionsItemContextmenu extends React.Component {
     render() {
         const {
             _id, access, to,
             pin,
-            onContextMenuClose, onCreateNewChildClick, onRenameClick, onIconClick, onRemoveClick, onSharing, onOpenAllClick, onSelectClick
+            onContextMenuClose, onCreateNewChildClick, onRenameClick, onIconClick, onRemoveClick, onSharing, onOpenAllClick, onSelectClick, onLinkCheckClick
         } = this.props
 
         return (
@@ -61,6 +62,12 @@ export default class CollectionsItemContextmenu extends React.Component {
                             {onSharing ? (
                                 <MenuItem onClick={onSharing}>
                                     {t.s('share')}
+                                </MenuItem>
+                            ) : null}
+
+                            {onLinkCheckClick ? (
+                                <MenuItem onClick={onLinkCheckClick}>
+                                    <Icon name='broken' /> Links prüfen
                                 </MenuItem>
                             ) : null}
 
