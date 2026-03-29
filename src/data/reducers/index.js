@@ -10,6 +10,7 @@ import oauth from './oauth'
 //import rate from './rate'
 import _import from './import'
 import linkCheck from './linkCheck'
+import moveJournal from './moveJournal'
 
 export default {
 	user,
@@ -23,5 +24,6 @@ export default {
 	oauth,
 	//rate,
 	import: _import,
-	linkCheck
+	linkCheck,
+	moveJournal
 }

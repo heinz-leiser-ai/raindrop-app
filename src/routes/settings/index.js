@@ -12,6 +12,7 @@ import Integrations from './integrations'
 import Pro from './pro'
 import Tfa from './tfa'
 import Journal from './journal'
+import Activity from './activity'
 
 export default function PageSettings() {
     return (
@@ -26,6 +27,7 @@ export default function PageSettings() {
             <Route path='pro' element={<Pro />} />
             <Route path='tfa' element={<Tfa />} />
             <Route path='journal' element={<Journal />} />
+            <Route path='activity' element={<Activity />} />
         </Route>
     )
 }
