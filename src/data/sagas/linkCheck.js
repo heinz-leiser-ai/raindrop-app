@@ -97,6 +97,9 @@ function* fetchStatus() {
 			checked: res.checked,
 			brokenCount: res.brokenCount
 		})
+
+		if (res.status === 'running' && res.runId)
+			yield call(pollStatus, res.runId)
 	} catch (error) {
 		yield put({ type: LINK_CHECK_STATUS_ERROR, error })
 	}

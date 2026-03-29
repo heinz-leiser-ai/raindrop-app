@@ -1,5 +1,5 @@
 import s from './linkCheck.module.styl'
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import * as linkCheckActions from '~data/actions/linkCheck'
@@ -12,6 +12,11 @@ export default function PageMySpaceHeaderLinkCheck() {
     const navigate = useNavigate()
     const brokenLevel = useSelector(state=>state.config.broken_level)
     const { status, total, checked, brokenCount, showResult } = useSelector(state=>state.linkCheck)
+
+    useEffect(()=>{
+        if (status === 'idle')
+            dispatch(linkCheckActions.getStatus())
+    }, [dispatch, status])
 
     const onClick = useCallback(e=>{
         e.preventDefault()
