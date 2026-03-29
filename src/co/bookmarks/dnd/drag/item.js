@@ -5,6 +5,7 @@ export default class BookmarksDragItem extends React.Component {
     static defaultProps = {
         _id: 0,
         spaceId: 0,
+        collectionId: 0,
         link: '',
         selectModeEnabled: false,
         selected: false,
@@ -14,12 +15,13 @@ export default class BookmarksDragItem extends React.Component {
 
     handlers = {
         onDragStart: e=>{
-            const { _id, spaceId, link, selectModeEnabled, selected, selectedCount, ghostClassName } = this.props
+            const { _id, spaceId, collectionId, link, selectModeEnabled, selected, selectedCount, ghostClassName } = this.props
+            const sourceId = collectionId || spaceId
 
             //multiselect
             if (selectModeEnabled) {
                 if (selected) {
-                    e.dataTransfer.setData('selected_bookmarks', parseInt(spaceId))
+                    e.dataTransfer.setData('selected_bookmarks', parseInt(sourceId))
 
                     const dragPreview = document.createElement('div')
                     dragPreview.id='dragPreview'
@@ -34,7 +36,7 @@ export default class BookmarksDragItem extends React.Component {
             else {
                 e.dataTransfer.setData('text/uri-list', link)
                 e.dataTransfer.setData('text/plain', link)
-                e.dataTransfer.setData('bookmark', JSON.stringify([_id, spaceId]))
+                e.dataTransfer.setData('bookmark', JSON.stringify([_id, sourceId]))
                 
                 //preview
                 const dragPreview = e.currentTarget.cloneNode(true)

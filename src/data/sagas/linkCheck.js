@@ -1,6 +1,5 @@
 import { call, put, takeEvery, delay, select } from 'redux-saga/effects'
 import Api from '../modules/api'
-import { API_ENDPOINT_URL } from '../constants/app'
 
 import {
 	LINK_CHECK_START_REQ,
@@ -17,7 +16,7 @@ import {
 	LINK_CHECK_JOURNAL_CLEAR_ERROR
 } from '../constants/linkCheck'
 
-const LINK_CHECK_BASE = API_ENDPOINT_URL.replace(/api\/$/, 'link-check/')
+const LINK_CHECK_BASE = 'link-check/'
 
 export default function* () {
 	yield takeEvery(LINK_CHECK_START_REQ, startCheck)

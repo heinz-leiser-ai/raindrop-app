@@ -1,17 +1,33 @@
-import React from 'react'
+import React, { useState, useCallback } from 'react'
 import t from '~t'
 import { API_ENDPOINT_URL } from '~data/constants/app'
 import Popover, { Menu, MenuItem, MenuSeparator } from '~co/overlay/popover'
 import Icon from '~co/common/icon'
 import { target } from '~target'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
+import { oneMove } from '~data/actions/bookmarks/single'
+import Picker from '~co/collections/picker'
 
 export default function BookmarksItemContextmenu({
-    _id, link, important, access, reparse, cache, fileType, type,
+    _id, link, important, access, reparse, cache, fileType, type, collectionId,
     onContextMenuClose, onRemoveClick, onCopyLinkClick,
     onSelectClick, onImportantClick, onReparseClick
 }) {
     const ai_assistant = useSelector(state=>state.config.ai_assistant)
+    const dispatch = useDispatch()
+    const [showPicker, setShowPicker] = useState(false)
+
+    const onMoveClick = useCallback(()=>setShowPicker(true), [])
+    const onPickerClose = useCallback(()=>setShowPicker(false), [])
+    const onPickerSelect = useCallback(({ _id: targetId })=>{
+        if (targetId != collectionId)
+            dispatch(oneMove(_id, targetId))
+        setShowPicker(false)
+        onContextMenuClose()
+    }, [_id, collectionId, dispatch, onContextMenuClose])
+
+    if (showPicker)
+        return <Picker events={{ onItemClick: onPickerSelect }} onClose={onPickerClose} />
 
     return (
         <Popover onClose={onContextMenuClose}>
@@ -56,6 +72,10 @@ export default function BookmarksItemContextmenu({
 
                         <MenuItem onClick={onSelectClick}>
                             {t.s('select')}
+                        </MenuItem>
+
+                        <MenuItem onClick={onMoveClick}>
+                            <Icon name='move_to' /> {t.s('move')}…
                         </MenuItem>
 
                         <MenuItem onClick={onImportantClick}>

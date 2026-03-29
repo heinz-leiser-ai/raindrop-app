@@ -1,15 +1,28 @@
 import s from './actions.module.styl'
 import t from '~t'
-import React from 'react'
+import React, { useState, useCallback } from 'react'
+import { useDispatch } from 'react-redux'
 
 import { Link } from 'react-router-dom'
 import Button from '~co/common/button'
 import Icon from '~co/common/icon'
+import { oneMove } from '~data/actions/bookmarks/single'
+import Picker from '~co/collections/picker'
 
 export default function BookmarkItemActions(props) {
-    const { _id, link, access, important, type } = props
+    const { _id, link, access, important, type, collectionId } = props
     const { className='' } = props
     const { onCopyLinkClick, onImportantClick, onRemoveClick } = props
+    const dispatch = useDispatch()
+    const [showPicker, setShowPicker] = useState(false)
+
+    const onMoveClick = useCallback(()=>setShowPicker(true), [])
+    const onPickerClose = useCallback(()=>setShowPicker(false), [])
+    const onPickerSelect = useCallback(({ _id: targetId })=>{
+        if (targetId != collectionId)
+            dispatch(oneMove(_id, targetId))
+        setShowPicker(false)
+    }, [_id, collectionId, dispatch])
 
     return (
         <div className={s.actions+' '+className}>
@@ -74,6 +87,21 @@ export default function BookmarkItemActions(props) {
             </Button>
 
             {access && access.level >= 3 ? (<>
+                {/* move */}
+                <Button
+                    data-button='move'
+                    onClick={onMoveClick}
+                    variant='outline'
+                    title={t.s('move')}>
+                    <Icon name='move_to' />
+                </Button>
+
+                {showPicker ? (
+                    <Picker
+                        events={{ onItemClick: onPickerSelect }}
+                        onClose={onPickerClose} />
+                ) : null}
+
                 {/* important */}
                 <Button 
                     data-button='important'
