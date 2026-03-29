@@ -50,19 +50,14 @@ function UserProfileMenu({
                     {t.s('help')} {t.s('und')} {t.s('support').toLowerCase()}
                 </MenuItem>
 
-                <MenuItem disabled style={{opacity: 0.5, cursor: 'default'}}>
-                    <Icon name='info' />
-                    v{pjson.version}
-                </MenuItem>
-
                 <MenuItem href={config.links.blog} target='_blank'>
                     <Icon name='history' />
                     {t.s('blog')}
                 </MenuItem>
 
-                <MenuItem href={config.links.help.changelog} target='_blank'>
-                    <Icon name='calendar' />
-                    {t.s('whatsNew')}?
+                <MenuItem disabled style={{opacity: 0.5, cursor: 'default'}}>
+                    <Icon name='info' />
+                    v{pjson.version}
                 </MenuItem>
 
                 <MenuSeparator />

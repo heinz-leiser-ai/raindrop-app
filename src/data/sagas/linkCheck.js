@@ -27,8 +27,8 @@ export default function* () {
 
 function* startCheck() {
 	try {
-		const { config: { broken_level } } = yield select()
-		const res = yield call(Api.post, LINK_CHECK_BASE + 'start', { broken_level })
+		const { config: { broken_level, link_check_skip_days } } = yield select()
+		const res = yield call(Api.post, LINK_CHECK_BASE + 'start', { broken_level, skip_days: link_check_skip_days ?? 2 })
 
 		yield put({ type: LINK_CHECK_START_SUCCESS, runId: res.runId, total: res.total })
 
