@@ -12,6 +12,7 @@ import covers from './covers'
 import config from './config'
 import oauth from './oauth'
 import _import from './import'
+import linkCheck from './linkCheck'
 
 //saga will be restart on case of failure, error intself will be send to sentry
 function* failSafe(saga) {
@@ -48,6 +49,7 @@ const root = function* () {
 		covers,
 		oauth,
 		_import,
+		linkCheck,
 
 		common
 	].map(failSafe))

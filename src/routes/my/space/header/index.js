@@ -8,6 +8,7 @@ import { target, environment } from '~target'
 import Add from './add'
 import Share from './share'
 import Ask from './ask'
+import LinkCheck from './linkCheck'
 
 export default function PageMySpaceHeader(params) {
     const navigate = useNavigate()
@@ -36,6 +37,7 @@ export default function PageMySpaceHeader(params) {
 
             <Share {...params} />
             <Ask {...params} />
+            <LinkCheck />
             <Add {...params} />
         </Header>
     )

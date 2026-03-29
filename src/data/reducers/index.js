@@ -9,6 +9,7 @@ import config from './config'
 import oauth from './oauth'
 //import rate from './rate'
 import _import from './import'
+import linkCheck from './linkCheck'
 
 export default {
 	user,
@@ -21,5 +22,6 @@ export default {
 	config,
 	oauth,
 	//rate,
-	import: _import
+	import: _import,
+	linkCheck
 }

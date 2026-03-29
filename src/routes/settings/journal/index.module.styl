@@ -1,0 +1,51 @@
+.empty
+    text-align center
+    padding 40px 20px
+    color var(--secondary-text-color)
+
+    p
+        margin-top 10px
+
+.confirmBar
+    display flex
+    align-items center
+    gap 8px
+    font-size 13px
+
+.list
+    display grid
+    gap 0
+
+.headerRow
+    display grid
+    grid-template-columns 1fr 2fr 1fr 120px
+    gap 12px
+    padding 8px 12px
+    font-size 12px
+    font-weight 600
+    color var(--secondary-text-color)
+    border-bottom 1px solid var(--divider-color)
+
+.row
+    display grid
+    grid-template-columns 1fr 2fr 1fr 120px
+    gap 12px
+    padding 8px 12px
+    font-size 13px
+    border-bottom 1px solid var(--divider-color)
+
+    &:hover
+        background var(--hover-background-color)
+
+.title
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
+
+.url
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
+
+    a
+        color var(--accent-color)
