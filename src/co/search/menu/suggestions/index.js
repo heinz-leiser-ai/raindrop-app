@@ -3,7 +3,7 @@ import Lazy from '~co/virtual/lazy'
 import Item from '~co/filters/item'
 import Tip from './tip'
 
-export default function SearchMenuSuggestions({ downshift: { getItemProps, highlightedIndex }, value, suggestions }) {
+export default function SearchMenuSuggestions({ downshift: { getItemProps, highlightedIndex }, value, suggestions, spaceId }) {
     const keyExtractor = useCallback(({query})=>query, [])
 
     if (!suggestions.length) return null
@@ -21,6 +21,7 @@ export default function SearchMenuSuggestions({ downshift: { getItemProps, highl
                 {(item, index)=>(
                     <Item 
                         item={item}
+                        spaceId={spaceId}
                         {...getItemProps({
                             key: keyExtractor(item),
                             index,
