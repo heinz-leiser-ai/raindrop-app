@@ -13,7 +13,16 @@ import {
 	LINK_CHECK_JOURNAL_ERROR,
 	LINK_CHECK_JOURNAL_CLEAR_REQ,
 	LINK_CHECK_JOURNAL_CLEAR_SUCCESS,
-	LINK_CHECK_JOURNAL_CLEAR_ERROR
+	LINK_CHECK_JOURNAL_CLEAR_ERROR,
+	LINK_CHECK_RUNS_REQ,
+	LINK_CHECK_RUNS_SUCCESS,
+	LINK_CHECK_RUNS_ERROR,
+	LINK_CHECK_CANCEL_REQ,
+	LINK_CHECK_CANCEL_SUCCESS,
+	LINK_CHECK_CANCEL_ERROR,
+	LINK_CHECK_CLEAN_RUNS_REQ,
+	LINK_CHECK_CLEAN_RUNS_SUCCESS,
+	LINK_CHECK_CLEAN_RUNS_ERROR
 } from '../constants/linkCheck'
 
 const LINK_CHECK_BASE = 'link-check/'
@@ -23,6 +32,9 @@ export default function* () {
 	yield takeEvery(LINK_CHECK_STATUS_REQ, fetchStatus)
 	yield takeEvery(LINK_CHECK_JOURNAL_REQ, fetchJournal)
 	yield takeEvery(LINK_CHECK_JOURNAL_CLEAR_REQ, clearJournal)
+	yield takeEvery(LINK_CHECK_RUNS_REQ, fetchRuns)
+	yield takeEvery(LINK_CHECK_CANCEL_REQ, cancelRun)
+	yield takeEvery(LINK_CHECK_CLEAN_RUNS_REQ, cleanRuns)
 }
 
 function* startCheck({ collectionId }) {
@@ -67,7 +79,7 @@ function* pollStatus(runId) {
 				brokenCount: res.brokenCount
 			})
 
-			if (res.status === 'completed' || res.status === 'failed') break
+			if (res.status === 'completed' || res.status === 'failed' || res.status === 'cancelled') break
 		} catch (error) {
 			yield put({ type: LINK_CHECK_STATUS_ERROR, error })
 			break
@@ -105,5 +117,32 @@ function* clearJournal() {
 		yield put({ type: LINK_CHECK_JOURNAL_CLEAR_SUCCESS })
 	} catch (error) {
 		yield put({ type: LINK_CHECK_JOURNAL_CLEAR_ERROR, error })
+	}
+}
+
+function* fetchRuns() {
+	try {
+		const res = yield call(Api.get, LINK_CHECK_BASE + 'runs')
+		yield put({ type: LINK_CHECK_RUNS_SUCCESS, runs: res.runs || [] })
+	} catch (error) {
+		yield put({ type: LINK_CHECK_RUNS_ERROR, error })
+	}
+}
+
+function* cancelRun({ runId }) {
+	try {
+		yield call(Api.post, LINK_CHECK_BASE + 'cancel', { runId })
+		yield put({ type: LINK_CHECK_CANCEL_SUCCESS, runId })
+	} catch (error) {
+		yield put({ type: LINK_CHECK_CANCEL_ERROR, error })
+	}
+}
+
+function* cleanRuns() {
+	try {
+		yield call(Api.del, LINK_CHECK_BASE + 'runs')
+		yield put({ type: LINK_CHECK_CLEAN_RUNS_SUCCESS })
+	} catch (error) {
+		yield put({ type: LINK_CHECK_CLEAN_RUNS_ERROR, error })
 	}
 }

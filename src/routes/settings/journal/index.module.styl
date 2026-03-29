@@ -26,6 +26,16 @@
     color var(--secondary-text-color)
     border-bottom 1px solid var(--divider-color)
 
+.runsHeader
+    display grid
+    grid-template-columns 140px 100px 60px 150px 150px 40px
+    gap 12px
+    padding 8px 12px
+    font-size 12px
+    font-weight 600
+    color var(--secondary-text-color)
+    border-bottom 1px solid var(--divider-color)
+
 .row
     display grid
     grid-template-columns 1fr 2fr 1fr 120px
@@ -36,6 +46,20 @@
 
     &:hover
         background var(--hover-background-color)
+
+.runRow
+    display grid
+    grid-template-columns 140px 100px 60px 150px 150px 40px
+    gap 12px
+    padding 8px 12px
+    font-size 13px
+    border-bottom 1px solid var(--divider-color)
+
+    &:hover
+        background var(--hover-background-color)
+
+.runningRow
+    background unquote('hsla(var(--accent-hsl), .05)')
 
 .title
     overflow hidden

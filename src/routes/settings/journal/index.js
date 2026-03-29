@@ -11,13 +11,27 @@ import Button from '~co/common/button'
 import Icon from '~co/common/icon'
 import { Item, ItemTitle } from '~co/common/list'
 
+const STATUS_LABELS = {
+    running: '⏳ Läuft',
+    completed: '✅ Fertig',
+    failed: '❌ Fehlgeschlagen',
+    cancelled: '🚫 Abgebrochen'
+}
+
+function formatDate(iso) {
+    if (!iso) return '–'
+    const d = new Date(iso)
+    return d.toLocaleDateString('de-CH') + ' ' + d.toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' })
+}
+
 export default function PageSettingsJournal() {
     const dispatch = useDispatch()
-    const { journal, journalLoading } = useSelector(state=>state.linkCheck)
+    const { journal, journalLoading, runs, runsLoading } = useSelector(state=>state.linkCheck)
     const [confirmClear, setConfirmClear] = useState(false)
 
     useEffect(()=>{
         dispatch(linkCheckActions.getJournal())
+        dispatch(linkCheckActions.getRuns())
     }, [dispatch])
 
     const onClear = useCallback(()=>{
@@ -33,9 +47,70 @@ export default function PageSettingsJournal() {
         setConfirmClear(false)
     }, [])
 
+    const onCancelRun = useCallback((runId)=>{
+        dispatch(linkCheckActions.cancelRun(runId))
+    }, [dispatch])
+
+    const onCleanRuns = useCallback(()=>{
+        dispatch(linkCheckActions.cleanRuns())
+    }, [dispatch])
+
+    const hasStaleRuns = runs.some(r => r.status === 'failed' || r.status === 'cancelled')
+
     return (
         <>
-            <Helmet><title>Löschjournal</title></Helmet>
+            <Helmet><title>Löschjournal & Jobs</title></Helmet>
+            <Header data-fancy>
+                <Title>Link-Check Jobs</Title>
+                {hasStaleRuns && (
+                    <Button variant='flat' onClick={onCleanRuns}>
+                        <Icon name='trash' />
+                        Fehlgeschlagene löschen
+                    </Button>
+                )}
+            </Header>
+
+            <Layout type='grid'>
+                {runsLoading && (
+                    <Item><ItemTitle>Laden...</ItemTitle></Item>
+                )}
+
+                {!runsLoading && runs.length === 0 && (
+                    <div className={s.empty}>
+                        <p>Keine Jobs vorhanden</p>
+                    </div>
+                )}
+
+                {!runsLoading && runs.length > 0 && (
+                    <div className={s.list}>
+                        <div className={s.runsHeader}>
+                            <span>Status</span>
+                            <span>Fortschritt</span>
+                            <span>Kaputt</span>
+                            <span>Gestartet</span>
+                            <span>Beendet</span>
+                            <span></span>
+                        </div>
+                        {runs.map((run)=>(
+                            <div key={run.id} className={`${s.runRow} ${run.status === 'running' ? s.runningRow : ''}`}>
+                                <span>{STATUS_LABELS[run.status] || run.status}</span>
+                                <span>{run.checked} / {run.total}</span>
+                                <span>{run.brokenCount || 0}</span>
+                                <span>{formatDate(run.startedAt)}</span>
+                                <span>{formatDate(run.finishedAt)}</span>
+                                <span>
+                                    {run.status === 'running' && (
+                                        <Button variant='flat' accent='danger' onClick={()=>onCancelRun(run.id)} title='Abbrechen'>
+                                            <Icon name='close' />
+                                        </Button>
+                                    )}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </Layout>
+
             <Header data-fancy>
                 <Title>Löschjournal</Title>
                 {journal.length > 0 && (
