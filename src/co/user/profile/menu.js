@@ -1,6 +1,7 @@
 import React from 'react'
 import t from '~t'
 import config from '~config'
+import pjson from '../../../../package.json'
 import { useLocation } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { logout } from '~data/actions/user'
@@ -47,6 +48,11 @@ function UserProfileMenu({
                 <MenuItem href={config.links.help.index} target='_blank'>
                     <Icon name='help' />
                     {t.s('help')} {t.s('und')} {t.s('support').toLowerCase()}
+                </MenuItem>
+
+                <MenuItem disabled style={{opacity: 0.5, cursor: 'default'}}>
+                    <Icon name='info' />
+                    v{pjson.version}
                 </MenuItem>
 
                 <MenuItem href={config.links.blog} target='_blank'>
