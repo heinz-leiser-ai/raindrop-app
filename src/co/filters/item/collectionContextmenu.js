@@ -1,16 +1,18 @@
-import React, { useCallback } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import t from '~t'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import Popover, { Menu, MenuItem, MenuSeparator } from '~co/overlay/popover'
 import Icon from '~co/common/icon'
+import Picker from '~co/collections/picker'
+import { oneUpdate } from '~data/actions/collections'
 import { moveSelected } from '~data/actions/bookmarks'
 import { makeSelectModeEnabled } from '~data/selectors/bookmarks'
-import { useMemo } from 'react'
 
 export default function CollectionContextmenu({ collectionId, collectionTitle, spaceId, onClose }) {
     const dispatch = useDispatch()
     const navigate = useNavigate()
+    const [showPicker, setShowPicker] = useState(false)
 
     const getSelectModeEnabled = useMemo(makeSelectModeEnabled, [])
     const selectModeEnabled = useSelector(state=>getSelectModeEnabled(state, spaceId))
@@ -25,10 +27,25 @@ export default function CollectionContextmenu({ collectionId, collectionTitle, s
         onClose()
     }, [navigate, collectionId, onClose])
 
+    const onMoveClick = useCallback(()=>setShowPicker(true), [])
+    const onPickerClose = useCallback(()=>{
+        setShowPicker(false)
+        onClose()
+    }, [onClose])
+    const onPickerSelect = useCallback(({ _id: targetId })=>{
+        if (targetId != collectionId)
+            dispatch(oneUpdate(collectionId, { parentId: parseInt(targetId) }))
+        setShowPicker(false)
+        onClose()
+    }, [collectionId, dispatch, onClose])
+
     const onMoveSelected = useCallback(()=>{
         dispatch(moveSelected(spaceId, collectionId))
         onClose()
     }, [dispatch, spaceId, collectionId, onClose])
+
+    if (showPicker)
+        return <Picker events={{ onItemClick: onPickerSelect }} onClose={onPickerClose} />
 
     return (
         <Popover onClose={onClose}>
@@ -36,6 +53,15 @@ export default function CollectionContextmenu({ collectionId, collectionTitle, s
                 <MenuItem onClick={onNavigate}>
                     {t.s('open')} "{collectionTitle}"
                 </MenuItem>
+
+                {collectionId > 0 ? (
+                    <>
+                        <MenuSeparator />
+                        <MenuItem onClick={onMoveClick}>
+                            <Icon name='move_to' /> {t.s('move')}…
+                        </MenuItem>
+                    </>
+                ) : null}
 
                 {selectModeEnabled && selectedCount > 0 ? (
                     <>

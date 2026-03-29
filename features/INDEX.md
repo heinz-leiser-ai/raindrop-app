@@ -1,7 +1,7 @@
 # Feature Index
 
 **Project:** Raindrop App (Frontend)
-**Next Available ID:** RAIN-7
+**Next Available ID:** RAIN-8
 
 | ID     | Name                       | Priority | Status  | Hauptpfade                                                        | Kurzbeschreibung                                        |
 | ------ | -------------------------- | -------- | ------- | ----------------------------------------------------------------- | ------------------------------------------------------- |
@@ -11,6 +11,7 @@
 | RAIN-4 | AI Bookmark Reorganisation | P2       | Planned | `src/co/reorganise/`, Backend Edge Functions | KI analysiert Duplikate + schlaegt neue Collection-Struktur vor |
 | RAIN-5 | Link Health Check          | P1       | Deployed | Backend Edge Functions, `src/routes/settings/` | Tote Links pruefen, anzeigen, loeschen + Loeschjournal  |
 | RAIN-6 | Move Bookmarks aus Suche   | P1       | In Review | `src/co/bookmarks/dnd/`, `src/co/bookmarks/item/` | DnD-Fix in Suche + "Verschieben nach..." Aktion mit Picker |
+| RAIN-7 | Move-Journal (Activity Log)| P1       | In Progress | Backend + `src/routes/settings/` | Protokoll aller Verschiebungen/Loeschungen mit Undo |
 
 ## Empfohlene Build-Reihenfolge
 
@@ -24,3 +25,4 @@
 - RAIN-1 und RAIN-2 setzen RDBE-12 (Backend Token-Auth) voraus
 - RAIN-5 braucht neue Edge Functions + DB-Tabellen (kein LLM)
 - RAIN-4 braucht neue Edge Functions + DB-Tabellen + LLM-Provider-Konfiguration
+- RAIN-7 braucht neue DB-Tabelle + Edge Function Endpunkte + 90-Tage-Cleanup
