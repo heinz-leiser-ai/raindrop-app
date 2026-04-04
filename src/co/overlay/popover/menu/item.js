@@ -14,11 +14,12 @@ export class MenuItem extends React.Component {
 
         this.props.onClick && this.props.onClick(e)
 
-        this.context.close()
+        if (this.props.closeMenu !== false)
+            this.context.close()
     }
 
     render() {
-        const { children, className='', as='a', ...etc } = this.props
+        const { children, className='', as='a', closeMenu, ...etc } = this.props
         const Tag = etc.to ? Link : as
         
         return (

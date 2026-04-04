@@ -36,7 +36,30 @@ export function getRefreshToken() {
 	return refreshToken
 }
 
+/**
+ * Modul-Variablen koennen nach Rehydrate noch leer sein, Tokens liegen schon in Redux.
+ * Ohne Sync: alle API-Calls ohne Authorization → 401.
+ */
+function syncTokensFromReduxIfNeeded() {
+	if (accessToken && refreshToken) return
+	try {
+		const { store } = require('../index')
+		const st = store.getState().user
+		if (!st) return
+		const at = st.accessToken ?? null
+		const rt = st.refreshToken ?? null
+		if (!at && !rt) return
+		if (!accessToken && at)
+			setAuthTokens(at, rt || refreshToken)
+		else if (!refreshToken && rt)
+			setAuthTokens(accessToken || at, rt)
+	} catch (e) {
+		// store noch nicht verfuegbar
+	}
+}
+
 export function getAuthHeaderObject() {
+	syncTokensFromReduxIfNeeded()
 	if (!accessToken) return {}
 	return { Authorization: `Bearer ${accessToken}` }
 }
@@ -55,6 +78,7 @@ function dispatchTokensToStore(at, rt) {
  * Ein Refresh gleichzeitig; liefert true wenn neue Tokens gesetzt wurden.
  */
 export function runRefreshIfNeeded() {
+	syncTokensFromReduxIfNeeded()
 	if (refreshInFlight) return refreshInFlight
 
 	const rt = refreshToken

@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom'
 import Popover, { Menu, MenuItem, MenuSeparator } from '~co/overlay/popover'
 import Icon from '~co/common/icon'
 import Picker from '~co/collections/picker'
-import { oneUpdate } from '~data/actions/collections'
+import { Confirm } from '~co/overlay/dialog'
+import { oneUpdate, oneRemove } from '~data/actions/collections'
 import { moveSelected } from '~data/actions/bookmarks'
 import { makeSelectModeEnabled } from '~data/selectors/bookmarks'
 
@@ -22,6 +23,13 @@ export default function CollectionContextmenu({ collectionId, collectionTitle, s
         return sm.all ? (state.bookmarks.spaces[spaceId]?.ids?.length || 0) : sm.ids.length
     })
 
+    const canDelete = useSelector(state=>{
+        if (collectionId <= 0) return false
+        const item = state.collections.items[collectionId]
+        const level = item?.access?.level ?? 0
+        return level >= 3
+    })
+
     const onNavigate = useCallback(()=>{
         navigate(`/my/${collectionId}`)
         onClose()
@@ -32,9 +40,18 @@ export default function CollectionContextmenu({ collectionId, collectionTitle, s
         setShowPicker(false)
         onClose()
     }, [onClose])
-    const onPickerSelect = useCallback(({ _id: targetId })=>{
-        if (targetId != collectionId)
-            dispatch(oneUpdate(collectionId, { parentId: parseInt(targetId) }))
+    const onPickerSelect = useCallback((item)=>{
+        const targetId = item._id
+        if (targetId === collectionId) return
+        if (targetId === 'root')
+            dispatch(oneUpdate(collectionId, { parentId: 'root' }))
+        else if (typeof targetId === 'number' && !Number.isNaN(targetId))
+            dispatch(oneUpdate(collectionId, { parentId: targetId }))
+        else {
+            const n = parseInt(targetId, 10)
+            if (!Number.isNaN(n) && n !== collectionId)
+                dispatch(oneUpdate(collectionId, { parentId: n }))
+        }
         setShowPicker(false)
         onClose()
     }, [collectionId, dispatch, onClose])
@@ -44,8 +61,24 @@ export default function CollectionContextmenu({ collectionId, collectionTitle, s
         onClose()
     }, [dispatch, spaceId, collectionId, onClose])
 
+    const onRemoveClick = useCallback(async ()=>{
+        const ok = await Confirm(t.s('areYouSure'), {
+            variant: 'warning',
+            description: t.s('collectionDeleteConfirm'),
+            ok: `${t.s('remove')} «${collectionTitle}»`
+        })
+        if (ok)
+            dispatch(oneRemove(collectionId))
+        onClose()
+    }, [dispatch, collectionId, collectionTitle, onClose])
+
     if (showPicker)
-        return <Picker events={{ onItemClick: onPickerSelect }} onClose={onPickerClose} />
+        return (
+            <Picker
+                extraHideIds={collectionId > 0 ? [collectionId] : []}
+                events={{ onItemClick: onPickerSelect }}
+                onClose={onPickerClose} />
+        )
 
     return (
         <Popover onClose={onClose}>
@@ -57,9 +90,15 @@ export default function CollectionContextmenu({ collectionId, collectionTitle, s
                 {collectionId > 0 ? (
                     <>
                         <MenuSeparator />
-                        <MenuItem onClick={onMoveClick}>
+                        <MenuItem closeMenu={false} onClick={onMoveClick}>
                             <Icon name='move_to' /> {t.s('move')}…
                         </MenuItem>
+
+                        {canDelete ? (
+                            <MenuItem closeMenu={false} onClick={onRemoveClick}>
+                                <Icon name='trash' /> {t.s('remove')}…
+                            </MenuItem>
+                        ) : null}
                     </>
                 ) : null}
 

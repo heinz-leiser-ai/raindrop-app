@@ -22,6 +22,8 @@ function* rehydrateAuthSession(action) {
 	const rt = u.refreshToken
 	if (at && rt)
 		setAuthTokens(at, rt)
+	else if (at || rt)
+		setAuthTokens(at || null, rt || null)
 	else
 		clearAuthTokens()
 }
